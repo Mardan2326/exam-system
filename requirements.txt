@@ -1,0 +1,20 @@
+# PDF 试题模拟考试器 - 依赖包列表
+
+# PDF 处理
+PyPDF2>=3.0.0
+
+# LLM API 调用
+openai>=1.0.0
+
+# Web 服务器（仅网页版需要）
+Flask>=3.0.0
+flask-cors>=4.0.0
+
+# GUI（Tkinter 通常随 Python 一起安装，无需单独安装）
+# tkinter - 已内置
+
+# 其他标准库（无需安装）
+# threading
+# json
+# re
+# datetime
