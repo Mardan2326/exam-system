@@ -71,7 +71,55 @@ def parse_exam():
             cleaned_response = cleaned_response[:-3]
         cleaned_response = cleaned_response.strip()
 
-        questions = json.loads(cleaned_response)
+        # 优先截取首尾中括号内的数组，去掉多余前后文
+        array_start = llm_response_str.find('[')
+        array_end = llm_response_str.rfind(']')
+        candidate = cleaned_response
+        if array_start != -1 and array_end != -1 and array_end > array_start:
+            candidate = llm_response_str[array_start:array_end+1].strip()
+
+        # 先尝试直接解析
+        try:
+            questions = json.loads(candidate)
+        except json.JSONDecodeError as e1:
+            # 最小化修复：去除尾随逗号、将单引号替换为双引号、规范化弯引号
+            import re as _re
+            minimally_fixed = _re.sub(r',\s*([}\]])', r'\1', cleaned_response)
+            minimally_fixed = (minimally_fixed
+                               .replace("'", '"')
+                               .replace("“", '"').replace("”", '"')
+                               .replace("‘", '"').replace("’", '"')
+                               .replace("`", ''))
+            try:
+                questions = json.loads(minimally_fixed)
+                print("[提示] 通过最小化修复成功解析 JSON")
+            except Exception as e2:
+                # 备用提取：截取首尾中括号内的内容再次尝试
+                start, end = llm_response_str.find('['), llm_response_str.rfind(']')
+                if start != -1 and end != -1 and end > start:
+                    sliced = llm_response_str[start:end+1]
+                    sliced = (_re.sub(r',\s*([}\]])', r'\1', sliced)
+                              .replace("'", '"')
+                              .replace("“", '"').replace("”", '"')
+                              .replace("‘", '"').replace("’", '"')
+                              .replace("`", ''))
+                    try:
+                        questions = json.loads(sliced)
+                        print("[提示] 使用备用切片解析成功")
+                    except Exception as e3:
+                        # 最后尝试：请求模型进行严格 JSON 重写
+                        print("[提示] 尝试让 AI 重写为严格 JSON…")
+                        repair_prompt = (
+                            "请将下面的内容严格转换为有效的 JSON 数组，"
+                            "只输出 JSON 数组本身，不要任何解释/注释/代码块标记。\n\n内容如下：\n---\n" + llm_response_str + "\n---"
+                        )
+                        repair = call_llm([{ "role": "user", "content": repair_prompt }])
+                        repaired = repair.strip().strip('`')
+                        questions = json.loads(repaired)
+                        print("[提示] 通过 AI 重写成功解析 JSON")
+                else:
+                    raise e1
+
         print(f"[成功] 解析出 {len(questions)} 道题目")
         print(f"{'='*60}\n")
         return jsonify(questions)

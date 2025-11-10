@@ -4,5 +4,8 @@
     "python.linting.enabled": true,
     "python.linting.pylintEnabled": false,
     "python.linting.pycodestyleEnabled": false,
-    "python.formatting.provider": "autopep8"
+    "python.formatting.provider": "autopep8",
+    "python.defaultInterpreterPath": "c:\\Users\\Mardan\\Documents\\trae_projects\\Exam\\.venv\\Scripts\\python.exe",
+    "cursorpyright.analysis.extraPaths": [],
+    "cursorpyright.analysis.typeCheckingMode": "basic"
 }
