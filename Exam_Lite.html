@@ -48,7 +48,9 @@
     .file-name{color:#666;font-size:14px}
     .tip{background:#fafbfc;border:1px solid #e1e4e8;padding:20px;border-radius:8px;margin-bottom:16px;line-height:1.8;color:#586069;display:flex;gap:24px}
     .tip strong{color:#24292e}
-    .tip-left{flex:1}
+    .tip-left{flex:1;font-size:13px;line-height:1.6;display:grid;grid-template-columns:1fr 1fr;gap:0 20px}
+    .tip-left > strong{grid-column:1 / -1;font-size:15px;margin-bottom:8px}
+    .tip-left > button{grid-column:1 / -1;margin-top:8px}
     .tip-right{width:320px;border-left:1px solid #e1e4e8;padding-left:24px}
     
     /* 初始UI优化 */
@@ -127,28 +129,35 @@
       <div class="tip">
         <div class="tip-left">
           <strong>使用指南</strong>
-          <br><br><strong>第一步：准备 PDF 试卷</strong>
-          <br>• 确保 PDF 文件清晰可读
-          <br>• 试卷格式：单选题、多选题、判断题均可
-          <br><br><strong>第二步：选择 AI 平台</strong>
-          <br>• 从右侧列表选择一个 AI 平台
-          <br>• 推荐使用智谱AI、通义千问等
-          <br>• 点击平台名称在新标签页打开
-          <br><br><strong>第三步：上传 PDF 并获取 JSON</strong>
-          <br>• 在 AI 平台上传你的 PDF 试卷
-          <br>• 点击下方"复制提示词"按钮
-          <br>• 将提示词粘贴给 AI
-          <br>• 等待 AI 生成 JSON 格式的题目
-          <br><br><strong>第四步：保存 JSON 文件</strong>
-          <br>• AI 生成后,复制完整的 JSON 内容
-          <br>• 在电脑上新建文本文件(记事本)
-          <br>• 粘贴 JSON 内容,保存为 .json 文件
-          <br>• 例如保存为: 试卷.json
-          <br><br><strong>第五步：开始考试</strong>
-          <br>• 点击"选择JSON文件"上传刚才保存的文件
-          <br>• 设置考试时长(默认90分钟)
-          <br>• 点击"开始考试"立即开始答题
-          <br><br>
+          <div>
+            <strong>第一步：准备 PDF 试卷</strong>
+            <br>• 确保 PDF 文件清晰可读
+            <br>• 试卷格式：单选题、多选题、判断题均可
+            <br><br><strong>第二步：选择 AI 平台</strong>
+            <br>• 从右侧列表选择一个 AI 平台
+            <br>• 推荐使用智谱AI、通义千问等
+            <br>• 点击平台名称在新标签页打开
+            <br><br><strong>第三步：上传 PDF 并获取 JSON</strong>
+            <br>• 在 AI 平台上传你的 PDF 试卷
+            <br>• 点击下方"复制提示词"按钮
+            <br>• 将提示词粘贴给 AI
+            <br>• 等待 AI 生成 JSON 格式的题目
+          </div>
+          <div>
+            <strong>第四步：保存 JSON 文件</strong>
+            <br>• AI 生成后,复制完整的 JSON 内容
+            <br>• 在电脑上新建文本文件(记事本)
+            <br>• 粘贴 JSON 内容,保存为 .json 文件
+            <br>• 例如保存为: 试卷.json
+            <br><br><strong>第五步：开始考试</strong>
+            <br>• 点击"选择JSON文件"上传刚才保存的文件
+            <br>• 设置考试时长(默认90分钟)
+            <br>• 点击"开始考试"立即开始答题
+            <br><br><strong>注意事项</strong>
+            <br>• AI 无法直接生成文件,需手动保存
+            <br>• 文件扩展名必须是 .json
+            <br>• 可参考示例文件了解格式
+          </div>
           <button id="copyPromptBtn" class="copy-prompt-btn">复制提示词</button>
         </div>
         <div class="tip-right">
