@@ -1,0 +1,73 @@
+[
+  {
+    "id": "1",
+    "type": "single",
+    "text": "中国的首都是哪里？",
+    "options": {
+      "A": "上海",
+      "B": "北京",
+      "C": "广州",
+      "D": "深圳"
+    },
+    "answer": "B",
+    "explanation": "北京是中华人民共和国的首都，是全国的政治中心、文化中心和国际交往中心。"
+  },
+  {
+    "id": "2",
+    "type": "multiple",
+    "text": "以下哪些是编程语言？（多选）",
+    "options": {
+      "A": "Python",
+      "B": "HTML",
+      "C": "Java",
+      "D": "CSS"
+    },
+    "answer": ["A", "C"],
+    "explanation": "Python和Java是编程语言，而HTML是标记语言，CSS是样式表语言，它们不具备完整的编程能力。"
+  },
+  {
+    "id": "3",
+    "type": "judge",
+    "text": "地球是太阳系中唯一有生命的星球。",
+    "options": {
+      "✓": "正确",
+      "✗": "错误"
+    },
+    "answer": "✓",
+    "explanation": "目前科学界普遍认为地球是太阳系中唯一存在生命的星球，尽管对其他星球的探索仍在继续。"
+  },
+  {
+    "id": "4",
+    "type": "single",
+    "text": "以下哪个不是JavaScript的数据类型？",
+    "options": {
+      "A": "String",
+      "B": "Boolean",
+      "C": "Float",
+      "D": "Number"
+    },
+    "answer": "C"
+  },
+  {
+    "id": "5",
+    "type": "multiple",
+    "text": "以下哪些是前端框架？（多选）",
+    "options": {
+      "A": "React",
+      "B": "Django",
+      "C": "Vue",
+      "D": "Flask"
+    },
+    "answer": ["A", "C"]
+  },
+  {
+    "id": "6",
+    "type": "judge",
+    "text": "HTTP协议是无状态协议。",
+    "options": {
+      "✓": "正确",
+      "✗": "错误"
+    },
+    "answer": "✓"
+  }
+]

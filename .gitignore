@@ -24,25 +24,24 @@ wheels/
 *.egg
 
 # IDE
-.vscode/*
-!.vscode/settings.json
-!.vscode/launch.json
-!.vscode/extensions.json
+.vscode/
 .idea/
 *.swp
 *.swo
 *~
 
-# 临时文件
-tmp_*
-temp_*
-*.tmp
-*.log
+# Environment
+.env
+.env.local
 
-# 操作系统
+# OS
 .DS_Store
 Thumbs.db
 desktop.ini
 
-# 项目特定
-*.pdf
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.bak
