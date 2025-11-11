@@ -84,6 +84,7 @@
     .nav-item:hover{border-color:#4a90e2;background:#f0f4ff;}
     .nav-item.answered{background:#e6f0ff;border-color:#4a90e2;color:#4a90e2;}
     .nav-item.active{background:#4a90e2;border-color:#4a90e2;color:#fff;}
+    .nav-item.marked{background:#fff3cd;border-color:#ffc107;color:#856404;}
     .nav-item.wrong{background:#f8d7da;border-color:#dc3545;color:#dc3545;font-weight:bold;}
     .nav-legend{display:flex;gap:16px;margin-top:16px;padding-top:16px;border-top:1px solid #eee;font-size:12px;}
     .nav-legend-item{display:flex;align-items:center;gap:6px;}
@@ -216,6 +217,10 @@
             <div class="nav-legend-box answered"></div>
             <span>已答</span>
           </div>
+          <div class="nav-legend-item">
+            <div class="nav-legend-box" style="background:#fff3cd;border-color:#ffc107;"></div>
+            <span>标记</span>
+          </div>
           <div class="nav-legend-item" id="wrongLegend" style="display:none;">
             <div class="nav-legend-box" style="background:#f8d7da;border-color:#dc3545;"></div>
             <span>答错</span>
@@ -250,6 +255,7 @@
     let questionBank = [];
     let currentIndex = 0;
     let userAnswers = {};
+    let markedQuestions = {}; // 标记的题目
     let examSubmitted = false;
     let timerInterval = null;
 
@@ -540,7 +546,7 @@
         const q = questionBank[idx];
         
         // 移除所有状态
-        item.classList.remove('answered', 'active', 'wrong');
+        item.classList.remove('answered', 'active', 'wrong', 'marked');
         
         // 添加当前题目标记
         if(idx === currentIndex){
@@ -554,6 +560,10 @@
           } else if(userAnswers[q.id]){
             item.classList.add('answered');
           }
+        }
+        // 添加标记状态(黄色)
+        else if(markedQuestions[q.id]){
+          item.classList.add('marked');
         }
         // 添加已答题标记
         else if(userAnswers[q.id]){
@@ -588,7 +598,12 @@
       
       div.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
         <h3 style="margin:0;font-size:20px;">${typeLabel}</h3>
-        <span style="color:#999;font-size:14px;">题目 ${index + 1} / ${questionBank.length}</span>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <button id="markBtn" style="padding:6px 12px;background:${markedQuestions[q.id] ? '#ffc107' : '#f0f0f0'};color:${markedQuestions[q.id] ? '#fff' : '#666'};border:none;border-radius:4px;cursor:pointer;font-size:13px;">
+            ${markedQuestions[q.id] ? '⭐ 已标记' : '☆ 标记'}
+          </button>
+          <span style="color:#999;font-size:14px;">题目 ${index + 1} / ${questionBank.length}</span>
+        </div>
       </div>`;
       
       const questionTextDiv = document.createElement('div');
@@ -720,6 +735,21 @@
       // 更新固定底部导航按钮
       updateBottomNav(index);
       examQuiz.appendChild(div);
+      
+      // 添加标记按钮事件
+      const markBtn = document.getElementById('markBtn');
+      if(markBtn && !examSubmitted){
+        markBtn.onclick = () => {
+          if(markedQuestions[q.id]){
+            delete markedQuestions[q.id];
+          } else {
+            markedQuestions[q.id] = true;
+          }
+          showQuestion(currentIndex);
+          updateNav();
+        };
+      }
+      
       updateNav();
     }
     
@@ -763,6 +793,7 @@
       durationInput.disabled = false;
       questionBank = [];
       userAnswers = {};
+      markedQuestions = {};
       examSubmitted = false;
       currentIndex = 0;
       setupMode.classList.remove('hidden');
