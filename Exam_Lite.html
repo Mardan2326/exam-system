@@ -6,11 +6,11 @@
   <title>PDF试卷模拟考试器 - 轻量版</title>
   <style>
     :root{font-family: system-ui,-apple-system,"PingFang SC","Microsoft YaHei",Arial;}
-    body{margin:0;display:flex;flex-direction:column;gap:12px;height:100vh;padding:12px;background:#f6f7fb}
+    body{margin:0;display:flex;flex-direction:column;gap:12px;height:100vh;padding:12px;background:#f5f7fa}
     main{flex:1;display:flex;flex-direction:column;gap:12px;overflow:hidden}
     header{display:flex;align-items:center;gap:12px}
     .controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-    .panel{background:#fff;padding:12px;border-radius:8px;box-shadow:0 6px 18px rgba(20,30,60,0.06)}
+    .panel{background:#fff;padding:20px;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.04);border:1px solid #e8ecf0}
     .quiz-container{flex:1;overflow-y:auto}
     .quiz{display:flex;flex-direction:column;gap:10px}
     .question{padding:10px;border-radius:6px;border:1px solid #eef2ff}
@@ -32,10 +32,26 @@
     button:disabled{opacity:0.5;cursor:not-allowed}
     .file-upload{display:flex;align-items:center;gap:8px}
     .file-upload input[type="file"]{display:none}
-    .file-upload label{padding:8px 16px;border-radius:6px;border:1px solid #4a90e2;background:#4a90e2;color:white;cursor:pointer}
-    .file-upload label:hover{background:#357abd}
+    .file-upload label{padding:10px 20px;border-radius:8px;border:1px solid #5b8def;background:#5b8def;color:white;cursor:pointer;font-weight:500;transition:all 0.2s}
+    .file-upload label:hover{background:#4a7dd9;border-color:#4a7dd9}
     .file-name{color:#666;font-size:14px}
-    .tip{background:#fff3cd;border:1px solid #ffc107;padding:10px;border-radius:6px;margin-bottom:10px}
+    .tip{background:#fafbfc;border:1px solid #e1e4e8;padding:20px;border-radius:8px;margin-bottom:16px;line-height:1.8;color:#586069;display:flex;gap:24px}
+    .tip strong{color:#24292e}
+    .tip-left{flex:1}
+    .tip-right{width:320px;border-left:1px solid #e1e4e8;padding-left:24px}
+    
+    /* 初始UI优化 */
+    #setupMode header h2{font-size:24px;color:#2c3e50;font-weight:600;margin:0}
+    .ai-platforms{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+    .ai-platforms a{padding:8px 16px;background:#f6f8fa;color:#586069;border-radius:6px;text-decoration:none;font-size:13px;transition:all 0.2s;border:1px solid #e1e4e8;display:block}
+    .ai-platforms a:hover{background:#e8ecf0;border-color:#d1d5da;color:#24292e}
+    .copy-prompt-btn{margin-left:8px;padding:6px 14px;background:#6c757d;color:white;border:none;border-radius:6px;cursor:pointer;font-size:12px;transition:all 0.2s}
+    .copy-prompt-btn:hover{background:#5a6268}
+    #loadBtn{background:#28a745;color:white;border:1px solid #28a745;font-weight:500}
+    #loadBtn:hover{background:#218838;border-color:#218838}
+    #loadBtn:disabled{background:#e9ecef;border-color:#e9ecef;color:#adb5bd}
+    #resetBtn{color:#6c757d;border-color:#6c757d}
+    #resetBtn:hover{background:#6c757d;color:white}
     
     /* 沉浸式考试模式 */
     .exam-mode{display:flex;gap:16px;height:100%;}
@@ -81,46 +97,47 @@
 <body>
   <main id="setupMode">
     <header>
-      <h2>📝 PDF试卷模拟考试器 - 轻量版</h2>
+      <h2>PDF试卷模拟考试器</h2>
     </header>
 
     <div class="panel controls">
       <div class="file-upload">
-        <label for="jsonFile">📂 选择JSON文件</label>
+        <label for="jsonFile">选择JSON文件</label>
         <input type="file" id="jsonFile" accept=".json">
         <span class="file-name" id="fileName">未选择文件</span>
       </div>
-      <button id="loadBtn" disabled>🚀 开始考试</button>
-      <button id="resetBtn">🔄 重置</button>
-      <label for="examDuration" style="margin-left: 16px;">考试时长(分钟):</label>
-      <input type="number" id="examDuration" value="90" style="width: 60px;">
+      <button id="loadBtn" disabled>开始考试</button>
+      <button id="resetBtn">重置</button>
+      <label for="examDuration" style="margin-left: 16px;color:#586069">考试时长(分钟):</label>
+      <input type="number" id="examDuration" value="90" style="width: 60px;border:1px solid #e1e4e8;border-radius:6px;padding:6px">
     </div>
 
     <div class="panel quiz-container">
       <div class="tip">
-        💡 <strong>使用提示：</strong>
-        <br>1. 选择一个AI大模型平台，上传PDF文件，使用推荐的提示词（详见<a href="使用文档.md" target="_blank">使用文档</a>）
-        <br>2. 下载AI输出的JSON文件
-        <br>3. 点击“选择JSON文件”，上传JSON文件
-        <br>4. 点击“开始考试”，立即开始答题！
-        <br>5. ⚡ <strong>超快速</strong>：秒级加载，无需等待！
-        <br><br>🤖 <strong>推荐的AI大模型平台：</strong>
-        <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px;">
-          <a href="https://chatglm.cn/" target="_blank" style="padding: 6px 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 6px; text-decoration: none; font-size: 13px; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">🔵 智谱AI (GLM)</a>
-          <a href="https://tongyi.aliyun.com/qianwen/" target="_blank" style="padding: 6px 12px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; border-radius: 6px; text-decoration: none; font-size: 13px; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">🟠 通义千问</a>
-          <a href="https://yiyan.baidu.com/" target="_blank" style="padding: 6px 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 6px; text-decoration: none; font-size: 13px; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">🔵 文心一言</a>
-          <a href="https://www.doubao.com/" target="_blank" style="padding: 6px 12px; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; border-radius: 6px; text-decoration: none; font-size: 13px; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">🔷 豆包 (Doubao)</a>
-          <a href="https://xinghuo.xfyun.cn/" target="_blank" style="padding: 6px 12px; background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white; border-radius: 6px; text-decoration: none; font-size: 13px; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">✨ 讯飞星火</a>
-          <a href="https://kimi.moonshot.cn/" target="_blank" style="padding: 6px 12px; background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); color: #333; border-radius: 6px; text-decoration: none; font-size: 13px; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">🌙 Kimi</a>
-          <a href="https://www.tiangong.cn/" target="_blank" style="padding: 6px 12px; background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); color: #333; border-radius: 6px; text-decoration: none; font-size: 13px; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">🌟 天工AI</a>
-          <a href="https://yuanbao.tencent.com/" target="_blank" style="padding: 6px 12px; background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%); color: white; border-radius: 6px; text-decoration: none; font-size: 13px; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">💰 腾讯元宝</a>
+        <div class="tip-left">
+          <strong>使用指南</strong>
+          <br><br>1. 选择一个 AI 大模型平台,上传 PDF 文件
+          <br>2. 点击下方按钮复制提示词,粘贴给 AI
+          <br>3. 下载 AI 输出的 JSON 文件
+          <br>4. 点击"选择JSON文件"上传,然后点击"开始考试"
+          <br><br>
+          <button id="copyPromptBtn" class="copy-prompt-btn">复制提示词</button>
         </div>
-        <div style="margin-top: 8px; font-size: 12px; color: #666;">
-          ℹ️ 点击上方链接访问AI平台，上传PDF后点击下方按钮复制提示词：
-          <button id="copyPromptBtn" style="margin-left: 8px; padding: 4px 12px; background: #4a90e2; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;" onmouseover="this.style.background='#357abd'" onmouseout="this.style.background='#4a90e2'">📋 复制提示词</button>
+        <div class="tip-right">
+          <strong>推荐的 AI 平台</strong>
+          <div class="ai-platforms">
+            <a href="https://chatglm.cn/" target="_blank">智谱AI (GLM)</a>
+            <a href="https://tongyi.aliyun.com/qianwen/" target="_blank">通义千问</a>
+            <a href="https://yiyan.baidu.com/" target="_blank">文心一言</a>
+            <a href="https://www.doubao.com/" target="_blank">豆包 (Doubao)</a>
+            <a href="https://xinghuo.xfyun.cn/" target="_blank">讯飞星火</a>
+            <a href="https://kimi.moonshot.cn/" target="_blank">Kimi</a>
+            <a href="https://www.tiangong.cn/" target="_blank">天工AI</a>
+            <a href="https://yuanbao.tencent.com/" target="_blank">腾讯元宝</a>
+          </div>
         </div>
       </div>
-      <div id="status">请选择JSON文件开始</div>
+      <div id="status" style="color:#6a737d;font-size:14px">请选择 JSON 文件开始</div>
     </div>
   </main>
 
@@ -317,7 +334,7 @@
         copyPromptBtn.style.background = '#28a745';
         setTimeout(() => {
           copyPromptBtn.innerHTML = originalText;
-          copyPromptBtn.style.background = '#4a90e2';
+          copyPromptBtn.style.background = '#6c757d';
         }, 2000);
       } catch (err) {
         alert('复制失败，请手动复制提示词！');
