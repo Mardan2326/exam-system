@@ -258,6 +258,8 @@
     let markedQuestions = {}; // 标记的题目
     let examSubmitted = false;
     let timerInterval = null;
+    let examStartTime = null; // 考试开始时间
+    let examDurationSeconds = 0; // 考试总时长(秒)
 
     // 复制提示词功能
     const promptText = `请仔细识别这个PDF文件中的所有题目，并按照以下JSON格式输出：
@@ -458,6 +460,8 @@ JSON输出顺序应该是：全部单选-全部多选-全部判断
         if (isNaN(examDuration) || examDuration <= 0) {
           examDuration = 90 * 60;
         }
+        examDurationSeconds = examDuration; // 保存总时长
+        examStartTime = Date.now(); // 记录开始时间
         startTimer(examDuration, timerEl);
         
       } catch(e) {
@@ -835,6 +839,26 @@ JSON输出顺序应该是：全部单选-全部多选-全部判断
       }
       const score = Math.round(correct / questionBank.length * 100);
       
+      // 计算用时
+      const elapsedTime = Date.now() - examStartTime;
+      const elapsedSeconds = Math.floor(elapsedTime / 1000);
+      const elapsedMinutes = Math.floor(elapsedSeconds / 60);
+      const elapsedSecs = elapsedSeconds % 60;
+      const timeUsed = `${elapsedMinutes}分${elapsedSecs}秒`;
+      
+      // 更新页面标题和计时器显示
+      const examTitle = document.getElementById('examTitle');
+      const examTimerDiv = document.querySelector('.exam-timer');
+      if(examTitle) examTitle.textContent = '✅ 考试结束';
+      if(examTimerDiv){
+        examTimerDiv.innerHTML = `
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
+            <span style="font-size:14px;color:#666;">🕒 用时：${timeUsed}</span>
+            <span style="font-size:16px;font-weight:bold;color:#28a745;">✅ 正确：${correct}/${questionBank.length}</span>
+          </div>
+        `;
+      }
+      
       // 显示错题图例
       const wrongLegend = document.getElementById('wrongLegend');
       if(wrongLegend) wrongLegend.style.display = 'flex';
@@ -846,7 +870,8 @@ JSON输出顺序应该是：全部单选-全部多选-全部判断
 
 总题数：${questionBank.length}
 正确数：${correct}
-正确率：${score}%`);
+正确率：${score}%
+用时：${timeUsed}`);
       showQuestion(0);
     }
   });
