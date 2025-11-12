@@ -19,7 +19,8 @@
     :root{font-family: system-ui,-apple-system,"PingFang SC","Microsoft YaHei",Arial;}
     body{margin:0;display:flex;flex-direction:column;gap:12px;height:100vh;padding:12px;background:#f5f7fa}
     main{flex:1;display:flex;flex-direction:column;gap:12px;overflow:hidden}
-    header{display:flex;align-items:center;gap:12px}
+    header{display:flex;align-items:center;gap:12px;justify-content:space-between}
+    .hero-subtitle{color:#6a737d;font-size:14px}
     .controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
     .panel{background:#fff;padding:20px;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.04);border:1px solid #e8ecf0}
     .quiz-container{flex:1;overflow-y:auto}
@@ -46,7 +47,10 @@
     .file-upload label{padding:10px 20px;border-radius:8px;border:1px solid #5b8def;background:#5b8def;color:white;cursor:pointer;font-weight:500;transition:all 0.2s}
     .file-upload label:hover{background:#4a7dd9;border-color:#4a7dd9}
     .file-name{color:#666;font-size:14px}
-    .tip{background:#fafbfc;border:1px solid #e1e4e8;padding:20px;border-radius:8px;margin-bottom:16px;line-height:1.8;color:#586069;display:flex;gap:24px}
+    .dropzone{flex:1;min-width:240px;padding:16px;border:2px dashed #d1d5da;border-radius:8px;background:#fafbfc;color:#586069;text-align:center;cursor:pointer}
+    .dropzone.active{border-color:#4a90e2;background:#eef6ff;color:#2c3e50}
+    
+    .tip{background:#fafbfc;border:1px solid #e1e4e8;padding:20px;border-radius:12px;margin-bottom:16px;line-height:1.8;color:#586069;display:flex;gap:24px}
     .tip strong{color:#24292e}
     .tip-left{flex:1;font-size:13px;line-height:1.6;display:grid;grid-template-columns:1fr 1fr;gap:0 20px}
     .tip-left > strong{grid-column:1 / -1;font-size:15px;margin-bottom:8px}
@@ -112,6 +116,7 @@
   <main id="setupMode">
     <header>
       <h2>PDF试卷模拟考试器</h2>
+      <div class="hero-subtitle">上传 JSON 试卷，设置时长后开始考试</div>
     </header>
 
     <div class="panel controls">
@@ -120,6 +125,7 @@
         <input type="file" id="jsonFile" accept=".json">
         <span class="file-name" id="fileName">未选择文件</span>
       </div>
+      <div id="dropzone" class="dropzone">拖拽 JSON 文件到此或点击选择</div>
       <button id="loadBtn" disabled>开始考试</button>
       <button id="resetBtn">重置</button>
       <label for="examDuration" style="margin-left: 16px;color:#586069">考试时长(分钟):</label>
@@ -150,7 +156,7 @@
             <br>• 粘贴 JSON 内容,保存为 .json 文件
             <br>• 例如保存为: 试卷.json
             <br><br><strong>第五步：开始考试</strong>
-            <br>• 点击"选择JSON文件"上传刚才保存的文件
+            <br>• 点击"选择JSON文件"或拖拽到上方区域
             <br>• 设置考试时长(默认90分钟)
             <br>• 点击"开始考试"立即开始答题
             <br><br><strong>注意事项</strong>
@@ -241,6 +247,7 @@
     const timerEl = document.getElementById('examTimer');
     const durationInput = document.getElementById('examDuration');
     const copyPromptBtn = document.getElementById('copyPromptBtn');
+    const dropzone = document.getElementById('dropzone');
     const setupMode = document.getElementById('setupMode');
     const examMode = document.getElementById('examMode');
     const examQuiz = document.getElementById('examQuiz');
@@ -423,7 +430,7 @@ JSON输出顺序应该是：全部单选-全部多选-全部判断
         jsonFile = file;
         fileNameEl.textContent = file.name;
         loadBtn.disabled = false;
-        submitExamBtn.disabled = true;
+        submitExamBtn2.disabled = true;
         statusEl.textContent = '已选择JSON文件，点击"开始考试"';
         statusEl.style.color = '#666';
       } else {
@@ -433,6 +440,28 @@ JSON输出顺序应该是：全部单选-全部多选-全部判断
         alert('请选择有效的JSON文件！');
       }
     };
+
+
+    if(dropzone){
+      dropzone.addEventListener('click', () => document.getElementById('jsonFile').click());
+      dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('active'); });
+      dropzone.addEventListener('dragleave', () => { dropzone.classList.remove('active'); });
+      dropzone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropzone.classList.remove('active');
+        const file = e.dataTransfer.files && e.dataTransfer.files[0];
+        if(file && file.name.endsWith('.json')){
+          jsonFile = file;
+          fileNameEl.textContent = file.name;
+          loadBtn.disabled = false;
+          submitExamBtn2.disabled = true;
+          statusEl.textContent = '已选择JSON文件，点击"开始考试"';
+          statusEl.style.color = '#666';
+        } else {
+          alert('请拖入有效的JSON文件！');
+        }
+      });
+    }
 
     loadBtn.onclick = async () => {
       if(!jsonFile) { alert('请先选择JSON文件！'); return; }
@@ -451,6 +480,8 @@ JSON输出顺序应该是：全部单选-全部多选-全部判断
         // 切换到沉浸式考试模式
         setupMode.classList.add('hidden');
         examMode.classList.remove('hidden');
+        submitExamBtn2.disabled = false;
+        durationInput.disabled = true;
         
         // 渲染题目
         renderQuiz(questions);
@@ -460,8 +491,8 @@ JSON输出顺序应该是：全部单选-全部多选-全部判断
         if (isNaN(examDuration) || examDuration <= 0) {
           examDuration = 90 * 60;
         }
-        examDurationSeconds = examDuration; // 保存总时长
-        examStartTime = Date.now(); // 记录开始时间
+        examDurationSeconds = examDuration;
+        examStartTime = Date.now();
         startTimer(examDuration, timerEl);
         
       } catch(e) {
@@ -663,7 +694,7 @@ JSON输出顺序应该是：全部单选-全部多选-全部判断
         if(typeof optionData === 'string'){
           btn.textContent = `${key}. ${optionData}`;
         } else if(typeof optionData === 'object' && optionData.text){
-          btn.innerHTML = `${key}. ${optionData.text}`;
+          btn.textContent = `${key}. ${optionData.text}`;
           if(optionData.image){
             const optImg = document.createElement('img');
             optImg.src = optionData.image;
