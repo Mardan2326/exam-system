@@ -471,7 +471,13 @@ JSON输出顺序应该是：全部单选-全部多选-全部判断
       
       try {
         const text = await jsonFile.text();
-        const questions = JSON.parse(text);
+        let questions;
+        
+        try {
+          questions = JSON.parse(text);
+        } catch(jsonError) {
+          throw new Error('JSON格式错误：文件内容不是有效的JSON格式，请检查是否有语法错误（如缺少引号、逗号等）');
+        }
         
         if (!Array.isArray(questions) || questions.length === 0) {
           throw new Error('JSON格式错误：必须是非空数组');
